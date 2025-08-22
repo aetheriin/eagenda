@@ -98,16 +98,16 @@
 
                     <!-- File Upload -->
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-1">Upload File (PDF/DOC) <span class="text-red-500">*</span></label>
-                        <input type="file" name="file" accept=".pdf,.doc,.docx" required
+                        <label class="block text-gray-700 font-semibold mb-1">Upload File (PDF/DOC)</label>
+                        <input type="file" name="file" accept=".pdf,.doc,.docx" 
                                class="w-full text-gray-700" />
                         <p class="text-sm text-gray-500">Hanya file PDF atau Word (Max 2MB)</p>
                     </div>
 
                     <!-- Keterangan -->
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-1">Keterangan <span class="text-red-500">*</span></label>
-                        <textarea name="keterangan" rows="3" required
+                        <label class="block text-gray-700 font-semibold mb-1">Keterangan</label>
+                        <textarea name="keterangan" rows="3" 
                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('keterangan') }}</textarea>
                     </div>
 
