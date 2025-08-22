@@ -52,30 +52,32 @@ class NaskahMasukController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nomor_naskah' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'asal_pengirim' => 'required|string|max:255',
-            'tanggal' => 'required|date',
-            'file' => 'required|mimes:pdf,doc,docx|max:2048',
-            'keterangan' => 'required|string',
+            'nomor_naskah'   => 'required|string|max:255',
+            'perihal'        => 'required|string|max:255',
+            'asal_pengirim'  => 'required|string|max:255',
+            'tanggal'        => 'required|date',
+            'file'           => 'nullable|mimes:pdf,doc,docx|max:2048', 
+            'keterangan'     => 'nullable|string', 
         ], [
             'required' => ':attribute wajib diisi.',
-            'mimes' => 'File harus berupa PDF atau Word.',
-            'max' => 'Ukuran file maksimal 2MB.',
+            'mimes'    => 'File harus berupa PDF atau Word.',
+            'max'      => 'Ukuran file maksimal 2MB.',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $filePath = $request->file('file')->store('naskah_masuk', 'public');
+            $filePath = $request->hasFile('file')
+                ? $request->file('file')->store('naskah_masuk', 'public')
+                : null;
 
             NaskahMasuk::create([
-                'nomor_naskah' => $request->nomor_naskah,
-                'perihal' => $request->perihal,
-                'asal_pengirim' => $request->asal_pengirim,
-                'tanggal' => $request->tanggal,
-                'file' => $filePath,
-                'keterangan' => $request->keterangan,
+                'nomor_naskah'   => $request->nomor_naskah,
+                'perihal'        => $request->perihal,
+                'asal_pengirim'  => $request->asal_pengirim,
+                'tanggal'        => $request->tanggal,
+                'file'           => $filePath,
+                'keterangan'     => $request->keterangan ?? null,
             ]);
 
             DB::commit();
@@ -87,7 +89,7 @@ class NaskahMasukController extends Controller
     }
 
     /**
-     * Tampilkan form edit.
+     * Form edit
      */
     public function edit(NaskahMasuk $naskahMasuk)
     {
@@ -95,17 +97,17 @@ class NaskahMasukController extends Controller
     }
 
     /**
-     * Update data.
+     * Update data
      */
     public function update(Request $request, NaskahMasuk $naskahMasuk)
     {
         $request->validate([
-            'nomor_naskah' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'asal_pengirim' => 'required|string|max:255',
-            'tanggal' => 'required|date',
-            'file' => 'nullable|mimes:pdf,doc,docx|max:2048',
-            'keterangan' => 'required|string',
+            'nomor_naskah'   => 'required|string|max:255',
+            'perihal'        => 'required|string|max:255',
+            'asal_pengirim'  => 'required|string|max:255',
+            'tanggal'        => 'required|date',
+            'file'           => 'nullable|mimes:pdf,doc,docx|max:2048', 
+            'keterangan'     => 'nullable|string', 
         ]);
 
         try {
@@ -129,6 +131,7 @@ class NaskahMasukController extends Controller
             return back()->withErrors(['error' => 'Gagal mengupdate data: ' . $e->getMessage()]);
         }
     }
+
 
     /**
      * Hapus data.
