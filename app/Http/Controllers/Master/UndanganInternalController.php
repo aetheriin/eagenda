@@ -51,8 +51,8 @@ class UndanganInternalController extends Controller
                 'perihal'          => 'required|string',
                 'tujuan_penerima'  => 'required|string',
                 'tanggal'          => 'required|date',
-                'file'             => 'required|mimes:pdf,doc,docx|max:2048',
-                'keterangan'       => 'required|string',
+                'file'             => 'nullable|mimes:pdf,doc,docx|max:2048',
+                'keterangan'       => 'nullable|string',
             ]);
 
             $bagianFungsi = BagianFungsi::findOrFail($validated['bagian_fungsi_id']);
