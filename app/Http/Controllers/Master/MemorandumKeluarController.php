@@ -47,14 +47,15 @@ class MemorandumKeluarController extends Controller
                 'perihal'          => 'required|string',
                 'tujuan_penerima'  => 'required|string',
                 'tanggal'          => 'required|date',
-                'file'             => 'required|mimes:pdf,doc,docx|max:2048',
-                'keterangan'       => 'required|string',
+                'file'             => 'nullable|mimes:pdf,doc,docx|max:2048', 
+                'keterangan'       => 'nullable|string', 
             ]);
 
             $bagianFungsi = BagianFungsi::findOrFail($validated['bagian_fungsi_id']);
             $klasifikasi  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
                 ->orWhere('kode_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
                 ->firstOrFail();
+
             $nomorUrut = str_pad($validated['nomor_urut'], 2, '0', STR_PAD_LEFT);
 
             $nomorNaskah = $nomorUrut
@@ -62,17 +63,19 @@ class MemorandumKeluarController extends Controller
                 . '/' . $klasifikasi->kode_klasifikasi
                 . '/' . now()->year;
 
-            $path = $request->file('file')->store('memorandum', 'public');
+            $path = $request->hasFile('file')
+                ? $request->file('file')->store('memorandum', 'public')
+                : null;
 
             MemorandumKeluar::create([
                 'nomor_naskah'          => $nomorNaskah,
                 'bagian_fungsi_id'      => $bagianFungsi->id,
-                'klasifikasi_naskah_id' => $klasifikasi->id, // ✅ Wajib isi kolom FK ini
+                'klasifikasi_naskah_id' => $klasifikasi->id,
                 'perihal'               => $validated['perihal'],
                 'tujuan_penerima'       => $validated['tujuan_penerima'],
                 'tanggal'               => $validated['tanggal'],
                 'file'                  => $path,
-                'keterangan'            => $validated['keterangan'],
+                'keterangan'            => $validated['keterangan'] ?? null, 
             ]);
 
             return redirect()->route('memorandum-keluar.index')->with('success', 'Memorandum berhasil ditambahkan!');
@@ -82,6 +85,7 @@ class MemorandumKeluarController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
+
 
 
     public function edit($id)
@@ -100,8 +104,8 @@ class MemorandumKeluarController extends Controller
             'perihal'          => 'required|string|max:255',
             'tujuan_penerima'  => 'required|string|max:255',
             'tanggal'          => 'required|date',
-            'file'             => 'nullable|mimes:pdf,doc,docx|max:2048',
-            'keterangan'       => 'required|string',
+            'file'             => 'nullable|mimes:pdf,doc,docx|max:2048', 
+            'keterangan'       => 'nullable|string', 
         ]);
 
         try {
@@ -112,7 +116,7 @@ class MemorandumKeluarController extends Controller
                 ->orWhere('kode_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
                 ->firstOrFail();
 
-            // Ambil nomor urut lama dari nomor_naskah existing (sebelum '/')
+            // Ambil nomor urut lama
             $oldNomorUrut = strtok($memorandumKeluar->nomor_naskah, '/');
 
             $nomorNaskah  = $oldNomorUrut
@@ -122,11 +126,11 @@ class MemorandumKeluarController extends Controller
 
             $data = [
                 'bagian_fungsi_id'      => $bagianFungsi->id,
-                'klasifikasi_naskah_id' => $klasifikasi->id, // ✅ simpan FK, bukan string
+                'klasifikasi_naskah_id' => $klasifikasi->id,
                 'perihal'               => $request->perihal,
                 'tujuan_penerima'       => $request->tujuan_penerima,
                 'tanggal'               => $request->tanggal,
-                'keterangan'            => $request->keterangan,
+                'keterangan'            => $request->keterangan ?? null, 
                 'nomor_naskah'          => $nomorNaskah,
             ];
 
@@ -146,6 +150,7 @@ class MemorandumKeluarController extends Controller
             return back()->withErrors(['error' => 'Gagal mengupdate data: ' . $e->getMessage()]);
         }
     }
+
 
 
 
