@@ -53,38 +53,35 @@ class SopKeluarController extends Controller
                 'nama_sop'        => 'required|string|max:255',
                 'tanggal_dibuat'  => 'required|date',
                 'tanggal_berlaku' => 'required|date',
-                'file'            => 'required|mimes:pdf,doc,docx|max:2048',
-                'keterangan'      => 'required|string',
+                'file'            => 'nullable|mimes:pdf,doc,docx|max:2048', 
+                'keterangan'      => 'nullable|string', 
             ]);
 
             $subTim = SubTim::findOrFail($validated['sub_tim_id']);
-
             $nomorUrut = str_pad($validated['nomor_urut'], 2, '0', STR_PAD_LEFT);
 
             $nomorNaskah = 'SOP-' . $nomorUrut
                 . '/' . $subTim->kode_subtim
                 . '/' . now()->year;
 
-            
-            $filePath = $request->file('file')->store('sop_keluar', 'public');
+            $filePath = $request->hasFile('file')
+                ? $request->file('file')->store('sop_keluar', 'public')
+                : null;
 
             SopKeluar::create([
-                'nomor_naskah' => $nomorNaskah,
-                'sub_tim_id'   => $validated['sub_tim_id'],
-                'nama_sop'     => $validated['nama_sop'],
-                'tanggal_dibuat'  => $validated['tanggal_dibuat'],
-                'tanggal_berlaku' => $validated['tanggal_berlaku'],
-                'file'         => $filePath,
-                'keterangan'   => $validated['keterangan'],
+                'nomor_naskah'     => $nomorNaskah,
+                'sub_tim_id'       => $validated['sub_tim_id'],
+                'nama_sop'         => $validated['nama_sop'],
+                'tanggal_dibuat'   => $validated['tanggal_dibuat'],
+                'tanggal_berlaku'  => $validated['tanggal_berlaku'],
+                'file'             => $filePath,
+                'keterangan'       => $validated['keterangan'] ?? null,
             ]);
 
             return redirect()->route('sop-keluar.index')->with('success', 'SOP Keluar berhasil ditambahkan!');
-            
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Jika validasi gagal
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            // Error lain
             return back()->with('error', 'Gagal menambahkan data: ' . $e->getMessage())->withInput();
         }
     }
@@ -102,13 +99,12 @@ class SopKeluarController extends Controller
     public function update(Request $request, SopKeluar $sopKeluar)
     {
         $request->validate([
-
-            'sub_tim_id' => 'required|exists:sub_tim,id',
-            'nama_sop' => 'required|string|max:255',
-            'tanggal_dibuat' => 'required|date',
+            'sub_tim_id'      => 'required|exists:sub_tims,id', 
+            'nama_sop'        => 'required|string|max:255',
+            'tanggal_dibuat'  => 'required|date',
             'tanggal_berlaku' => 'required|date',
-            'file' => 'required|mimes:pdf,doc,docx|max:2048',
-            'keterangan' => 'required|string',
+            'file'            => 'nullable|mimes:pdf,doc,docx|max:2048', 
+            'keterangan'      => 'nullable|string', 
         ]);
 
         try {
@@ -120,7 +116,7 @@ class SopKeluarController extends Controller
                 if ($sopKeluar->file && Storage::disk('public')->exists($sopKeluar->file)) {
                     Storage::disk('public')->delete($sopKeluar->file);
                 }
-                $data['file'] = $request->file('file')->store('sopkeluar', 'public');
+                $data['file'] = $request->file('file')->store('sop_keluar', 'public');
             }
 
             $sopKeluar->update($data);
@@ -132,6 +128,7 @@ class SopKeluarController extends Controller
             return back()->withErrors(['error' => 'Gagal mengupdate data: ' . $e->getMessage()]);
         }
     }
+
 
     public function destroy(SopKeluar $sopKeluar)
     {
