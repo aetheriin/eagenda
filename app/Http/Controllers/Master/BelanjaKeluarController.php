@@ -47,8 +47,8 @@ class BelanjaKeluarController extends Controller
                 'perihal'          => 'required|string',
                 'tujuan_penerima'  => 'required|string',
                 'tanggal'          => 'required|date',
-                'file'             => 'required|mimes:pdf,doc,docx|max:2048',
-                'keterangan'       => 'required|string',
+                'file'             => 'nullable|mimes:pdf,doc,docx|max:2048', // ✅ tidak wajib
+                'keterangan'       => 'nullable|string', // ✅ tidak wajib
             ]);
 
             $bagianFungsi = BagianFungsi::findOrFail($validated['bagian_fungsi_id']);
@@ -60,17 +60,20 @@ class BelanjaKeluarController extends Controller
                 . '/' . $klasifikasi->kode_klasifikasi
                 . '/' . now()->year;
 
-            $path = $request->file('file')->store('belanja', 'public');
+            // jika ada file baru → simpan, kalau tidak null
+            $path = $request->hasFile('file') 
+                ? $request->file('file')->store('belanja', 'public') 
+                : null;
 
             BelanjaKeluar::create([
                 'nomor_naskah'          => $nomorNaskah,
                 'bagian_fungsi_id'      => $bagianFungsi->id,
-                'klasifikasi_naskah_id' => $klasifikasi->id, // ✅ Wajib isi kolom FK ini
+                'klasifikasi_naskah_id' => $klasifikasi->id,
                 'perihal'               => $validated['perihal'],
                 'tujuan_penerima'       => $validated['tujuan_penerima'],
                 'tanggal'               => $validated['tanggal'],
                 'file'                  => $path,
-                'keterangan'            => $validated['keterangan'],
+                'keterangan'            => $validated['keterangan'] ?? null, // kalau kosong → null
             ]);
 
             return redirect()->route('belanja-keluar.index')->with('success', 'Belanja Keluar berhasil ditambahkan!');
@@ -80,6 +83,7 @@ class BelanjaKeluarController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
+
 
 
     public function edit($id)
@@ -98,8 +102,8 @@ class BelanjaKeluarController extends Controller
             'perihal'          => 'required|string|max:255',
             'tujuan_penerima'  => 'required|string|max:255',
             'tanggal'          => 'required|date',
-            'file'             => 'nullable|mimes:pdf,doc,docx|max:2048',
-            'keterangan'       => 'required|string',
+            'file'             => 'nullable|mimes:pdf,doc,docx|max:2048', 
+            'keterangan'       => 'nullable|string', 
         ]);
 
         try {
@@ -108,9 +112,7 @@ class BelanjaKeluarController extends Controller
             $bagianFungsi = BagianFungsi::findOrFail($request->bagian_fungsi_id);
             $klasifikasi  = KlasifikasiNaskah::where('nama_klasifikasi', $request->klasifikasi)->firstOrFail();
 
-            // Ambil nomor urut lama dari nomor_naskah existing (sebelum '/')
             $oldNomorUrut = strtok($belanjaKeluar->nomor_naskah, '/');
-
             $nomorNaskah  = $oldNomorUrut
                 . '/' . $bagianFungsi->kode_bps
                 . '/' . $klasifikasi->kode_klasifikasi
@@ -118,11 +120,11 @@ class BelanjaKeluarController extends Controller
 
             $data = [
                 'bagian_fungsi_id'      => $bagianFungsi->id,
-                'klasifikasi_naskah_id' => $klasifikasi->id, // ✅ simpan FK, bukan string
+                'klasifikasi_naskah_id' => $klasifikasi->id,
                 'perihal'               => $request->perihal,
                 'tujuan_penerima'       => $request->tujuan_penerima,
                 'tanggal'               => $request->tanggal,
-                'keterangan'            => $request->keterangan,
+                'keterangan'            => $request->keterangan ?? null, 
                 'nomor_naskah'          => $nomorNaskah,
             ];
 
@@ -142,6 +144,7 @@ class BelanjaKeluarController extends Controller
             return back()->withErrors(['error' => 'Gagal mengupdate data: ' . $e->getMessage()]);
         }
     }
+
 
 
 
