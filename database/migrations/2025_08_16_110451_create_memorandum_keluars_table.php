@@ -14,19 +14,19 @@ return new class extends Migration
             
             // Relasi
             $table->foreignId('bagian_fungsi_id')
-                  ->constrained('bagian_fungsis')
-                  ->cascadeOnUpdate()
-                  ->cascadeOnDelete();
+                ->constrained('bagian_fungsis')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
 
             $table->foreignId('klasifikasi_naskah_id')
-                  ->constrained('klasifikasi_naskahs')
-                  ->cascadeOnUpdate()
-                  ->cascadeOnDelete();
+                ->constrained('klasifikasi_naskahs')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
 
             $table->string('perihal');
             $table->string('tujuan_penerima');
             $table->date('tanggal');
-            $table->string('file');
+            $table->string('file')->nullable(); 
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

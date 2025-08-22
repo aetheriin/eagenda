@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('perihal');
             $table->string('tujuan_penerima');
             $table->date('tanggal');
-            $table->string('file');
+            $table->string('file')->nullable(); 
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

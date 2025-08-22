@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('perihal');
             $table->string('asal_pengirim');
             $table->date('tanggal');
-            $table->string('file');
+            $table->string('file')->nullable(); 
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

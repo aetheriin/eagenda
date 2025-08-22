@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('nama_sop');
             $table->string('tanggal_dibuat');
             $table->string('tanggal_berlaku');
-            $table->string('file');
+            $table->string('file')->nullable(); 
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('klasifikasi_naskahs', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_klasifikasi');   // contoh: "PERENCANAAN"
-            $table->string('kode_klasifikasi');   // contoh: "SS.000"
+            $table->string('nama_klasifikasi');   
+            $table->string('kode_klasifikasi');   
             $table->timestamps();
         });
     }

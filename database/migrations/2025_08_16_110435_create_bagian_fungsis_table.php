@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('bagian_fungsis', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_bagian'); // contoh: "BPS Provinsi Riau"
-            $table->string('kode_bps');    // contoh: "12.07"
+            $table->string('nama_bagian'); 
+            $table->string('kode_bps');    
             $table->timestamps();
         });
     }
