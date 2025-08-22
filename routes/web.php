@@ -1,11 +1,20 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Master\MemorandumKeluarController;
 use App\Http\Controllers\Master\NaskahMasukController;
 use App\Http\Controllers\Master\BelanjaKeluarController;
 use App\Http\Controllers\Master\KeamananSuratController;
 use App\Http\Controllers\Master\KlasifikasiNaskahController;
+use App\Http\Controllers\Master\SuratTugasController;
+use App\Http\Controllers\Master\SuratDinasController;
+use App\Http\Controllers\Master\UndanganInternalController;
+use App\Http\Controllers\Master\UndanganEksternalController;
+use App\Http\Controllers\Master\SopKeluarController;
+use App\Http\Controllers\Master\BagianFungsiController;
+use App\Http\Controllers\Master\SubTimController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
@@ -18,9 +27,18 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
+
+Route::get('/profile/admin', function () {
+    return view('profile.admin'); 
+})->middleware(['auth'])->name('profile.admin');
+
+Route::get('/profile/edit', function () {
+    return view('profile.edit'); 
+})->middleware(['auth'])->name('profile.edit');
+
 
 Route::middleware('auth')->group(function () {
     // Profile
@@ -28,15 +46,19 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Master
-    Route::prefix('master')->name('master.')->group(function () {
-        Route::resource('bagian-fungsi', BagianFungsiController::class)->except(['show']);
-        // tambah resource lain jika perlu
-    });
 
+    // ✅ Kelola Akun
+    Route::resource('users', UserController::class);
+
+    
     // Master
     Route::resource('keamanan-surat', KeamananSuratController::class);
     Route::resource('klasifikasi-naskah', KlasifikasiNaskahController::class);
+    Route::resource('klasifikasi-naskah ', \App\Http\Controllers\Master\KlasifikasiNaskahController::class);
+    Route::resource('bagian-fungsi', BagianFungsiController::class);
+    Route::resource('sub-tim', SubTimController::class);
+
+
 
     // Naskah Masuk
     Route::resource('naskah-masuk', NaskahMasukController::class);
@@ -45,13 +67,29 @@ Route::middleware('auth')->group(function () {
     // Naskah Keluar 
     Route::resource('memorandum-keluar', MemorandumKeluarController::class);
     Route::resource('belanja-keluar', BelanjaKeluarController::class);
+    Route::resource('surat-tugas', SuratTugasController::class);
+    Route::resource('surat-dinas', SuratDinasController::class);
+    Route::resource('undangan-internal', UndanganInternalController::class);
+    Route::resource('undangan-eksternal', UndanganEksternalController::class);
+    Route::resource('sop-keluar', SopKeluarController::class);
 
     // Laporan
     Route::prefix('laporan')->name('laporan.')->group(function () {
-        Route::get('ringkasan', [LaporanController::class, 'ringkasan'])->name('ringkasan');
-        Route::get('export', [LaporanController::class, 'export'])->name('export');
-        Route::get('filter', [LaporanController::class, 'filter'])->name('filter');
+        // ✅ Naskah Masuk
+        Route::get('naskah-masuk', [LaporanController::class, 'naskahMasuk'])
+            ->name('naskah-masuk');
+
+        Route::get('naskah-masuk/export', [LaporanController::class, 'exportNaskahMasuk'])
+            ->name('naskah-masuk.export');
+
+        // ✅ Naskah Keluar
+        Route::get('naskah-keluar', [LaporanController::class, 'naskahKeluar'])
+            ->name('naskah-keluar');
+        
+        Route::get('{jenis}/export', [LaporanController::class, 'exportNaskahKeluar'])
+            ->name('naskah-keluar.export');
     });
+
 });
 
 // Override login POST (custom tahun)

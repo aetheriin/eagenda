@@ -15,25 +15,23 @@ class KlasifikasiNaskahController extends Controller
      */
     public function index(Request $request)
     {
-    $query = KlasifikasiNaskah::orderBy('id', 'desc');
+        $query = KlasifikasiNaskah::orderBy('id', 'desc');
 
-        // ✅ Search berdasarkan nomor kode atau nama
-        if ($request->has('search') && $request->search != '') {
-            $query->where(function($q) use ($request) {
-                $q->where('kode', 'like', '%' . $request->search . '%')
-                ->orWhere('nama', 'like', '%' . $request->search . '%');
-            });
-        }
+            if ($request->has('search') && $request->search != '') {
+                $query->where(function($q) use ($request) {
+                    $q->where('kode_klasifikasi', 'like', '%' . $request->search . '%')
+                    ->orWhere('nama_klasifikasi', 'like', '%' . $request->search . '%');
+                });
+            }
 
-        // ✅ Filter jumlah data per halaman (default 10)
-        $perPage = $request->get('per_page', 10);
+            $perPage = $request->get('per_page', 10);
 
-        $klasifikasiNaskah = $query->paginate($perPage)->appends([
-            'search' => $request->search,
-            'per_page' => $perPage
-        ]);
+            $klasifikasiNaskah = $query->paginate($perPage)->appends([
+                'search' => $request->search,
+                'per_page' => $perPage
+            ]);
 
-        return view('klasifikasinaskah.index', compact('klasifikasiNaskah'));
+            return view('klasifikasinaskah.index', compact('klasifikasiNaskah'));
     }
 
 
@@ -54,20 +52,20 @@ class KlasifikasiNaskahController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode' => 'required|string|max:255',
-            'nama' => 'required|string|max:255',
+            'kode_klasifikasi' => 'required|string|max:255',
+            'nama_klasifikasi' => 'required|string|max:255',
         ]);
 
         try {
             DB::beginTransaction();
 
             KlasifikasiNaskah::create([
-                'kode' => $request->kode,
-                'nama' => $request->nama,
+                'kode_klasifikasi' => $request->kode_klasifikasi,
+                'nama_klasifikasi' => $request->nama_klasifikasi,
             ]);
 
             DB::commit();
-            return redirect()->route('klasifikasi-naskah.index')->with('success', 'Klasifikasi Naskah berhasil ditambahkan!');
+            return redirect()->route('profile.admin')->with('success', 'Klasifikasi Naskah berhasil ditambahkan!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menambahkan data: ' . $e->getMessage()]);
@@ -88,14 +86,14 @@ class KlasifikasiNaskahController extends Controller
     public function update(Request $request, KlasifikasiNaskah $klasifikasiNaskah)
     {
         $request->validate([
-            'kode' => 'required|string|max:255',
-            'nama' => 'required|string|max:255',
+            'kode_klasifikasi' => 'required|string|max:255',
+            'nama_klasifikasi' => 'required|string|max:255',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $data = $request->only(['kode', 'nama']);
+            $data = $request->only(['kode_klasifikasi', 'nama_klasifikasi']);
             $klasifikasiNaskah->update($data);
 
             DB::commit();

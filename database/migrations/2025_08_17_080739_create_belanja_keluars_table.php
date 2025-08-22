@@ -6,16 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('belanja_keluars', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_naskah');
-            $table->string('bagian_fungsi');
-            $table->string('klasifikasi');
+            $table->string('nomor_naskah'); 
+            
+            // Relasi
+            $table->foreignId('bagian_fungsi_id')
+                  ->constrained('bagian_fungsis')
+                  ->cascadeOnUpdate()
+                  ->cascadeOnDelete();
+
+            $table->foreignId('klasifikasi_naskah_id')
+                  ->constrained('klasifikasi_naskahs')
+                  ->cascadeOnUpdate()
+                  ->cascadeOnDelete();
+
             $table->string('perihal');
             $table->string('tujuan_penerima');
             $table->date('tanggal');
@@ -25,9 +32,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('belanja_keluars');

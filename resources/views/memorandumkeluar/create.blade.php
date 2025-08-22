@@ -25,48 +25,54 @@
                     </div>
                 @endif
 
+                @if(session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+
                 <!-- ✅ Form -->
                 <form action="{{ route('memorandum-keluar.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <!-- Nomor Urut -->
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-1">Nomor Urut <span class="text-red-500">*</span></label>
-                        <input type="text" name="nomor_urut" value="{{ $nomorUrut }}" readonly
-                               class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-                    </div>
+                    <x-input-nomor-urut :value="$nomorUrut" />
 
-                    <!-- Nomor Naskah -->
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-1">Nomor Naskah <span class="text-red-500">*</span></label>
-                        <input type="text" name="nomor_naskah" value="{{ old('nomor_naskah') }}" required
-                               class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-                    </div>
 
-                    <!-- Bagian/Fungsi -->
+                    <!-- Bagian/Fungsi + Klasifikasi -->
                     <div class="flex gap-4 mb-4">
-                        <!-- Bagian/Fungsi (2/3 lebar) -->
+                        <!-- Bagian Fungsi -->
                         <div class="w-3/4">
-                            <label class="block text-gray-700 font-semibold mb-1" for="bagian_fungsi">Bagian / Fungsi</label>
-                            <select name="bagian_fungsi" id="bagian_fungsi"
+                            <label class="block text-gray-700 font-semibold mb-1" for="bagian_fungsi_id">Bagian / Fungsi</label>
+                            <select name="bagian_fungsi_id" id="bagian_fungsi_id"
                                     class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                 <option value="">-- Pilih Bagian / Fungsi --</option>
                                 @foreach($bagianFungsi as $bagian)
-                                    <option value="{{ $bagian->nama }}" {{ old('bagian_fungsi') == $bagian->nama ? 'selected' : '' }}>
-                                        {{ $bagian->nama }}
+                                    <option value="{{ $bagian->id }}" {{ old('bagian_fungsi_id') == $bagian->id ? 'selected' : '' }}>
+                                        {{ $bagian->nama_bagian }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <!-- Klasifikasi (1/3 lebar) -->
+                        <!-- Klasifikasi -->
                         <div class="w-1/3">
                             <label class="block text-gray-700 font-semibold mb-1">Klasifikasi <span class="text-red-500">*</span></label>
                             <input type="text" name="klasifikasi" value="{{ old('klasifikasi') }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required />
                         </div>
                     </div>
+
 
 
                     <!-- Perihal -->

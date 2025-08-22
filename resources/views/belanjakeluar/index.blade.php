@@ -1,28 +1,43 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Nota Dinas/KAK/Form Belanja Keluar') }}
+            {{ __('Belanja Keluar') }}
         </h2>
     </x-slot>
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto px-6">
+            
+        @if(session('success'))
+            <div 
+                x-data="{ show: true }" 
+                x-show="show" 
+                x-transition 
+                x-init="setTimeout(() => show = false, 3000)" 
+                class="mb-4 p-4 rounded-lg bg-green-100 text-green-800 border border-green-300"
+            >
+                {{ session('success') }}
+            </div>
+        @endif
+
             <!-- ✅ Card Kontainer -->
             <div class="bg-white shadow rounded-lg p-6">
                 
                 <!-- ✅ Header Tabel dan Tombol -->
                 <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-800">Nota Dinas/KAK/Form Belanja Keluar</h3>
+                <h3 class="text-lg font-bold text-gray-800">Daftar Belanja Keluar</h3>
 
                 <div class="flex items-center gap-4">
                     <!-- Dropdown Filter -->
-                    <select name="per_page" 
-                        class="border border-gray-300 rounded px-3 py-2 text-sm h-10"
+                    <select name="per_page"
+                        class="appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm h-10 min-w-[100px] 
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                         onchange="this.form.submit()">
                         <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
                         <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
                         <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                     </select>
+
 
                     <!-- Input Search + Tombol Cari -->
                     <form method="GET" action="{{ route('belanja-keluar.index') }}" class="flex items-center space-x-2">
@@ -52,12 +67,9 @@
                             <tr>
                                 <th class="px-4 py-2 border text-center">No</th>
                                 <th class="px-4 py-2 border">Nomor Naskah</th>
-                                <th class="px-4 py-2 border">Bagian/Fungsi</th>
-                                <th class="px-4 py-2 border">Klasifikasi</th>
                                 <th class="px-4 py-2 border">Perihal</th>
                                 <th class="px-4 py-2 border">Tujuan/Penerima</th>
                                 <th class="px-4 py-2 border text-center">Tanggal</th>
-                                <th class="px-4 py-2 border text-center">File</th>
                                 <th class="px-4 py-2 border text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -68,28 +80,10 @@
                                         {{ $loop->iteration + ($belanjaKeluar->currentPage() - 1) * $belanjaKeluar->perPage() }}
                                     </td>
                                     <td class="px-4 py-2 border">{{ $item->nomor_naskah }}</td>
-                                    <td class="px-4 py-2 border">{{ $item->bagian_fungsi }}</td>
-                                    <td class="px-4 py-2 border">{{ $item->klasifikasi }}</td>
                                     <td class="px-4 py-2 border">{{ $item->perihal }}</td>
                                     <td class="px-4 py-2 border">{{ $item->tujuan_penerima }}</td>
                                     <td class="px-4 py-2 border text-center">
                                         {{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}
-                                    </td>
-                                    <td class="px-4 py-2 border text-center">
-                                        <a href="{{ asset('storage/' . $item->file) }}" 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            class="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded text-sm font-medium transition">
-                                            
-                                                <!-- Ikon Mata -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                Lihat
-                                        </a>
-
-
                                     </td>
                                     <td class="px-4 py-2 border text-center">
                                         <div class="flex justify-center items-center gap-3">

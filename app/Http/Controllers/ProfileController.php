@@ -16,10 +16,18 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $user = $request->user(); 
+
+        // Jika admin -> kirim ke resources/views/admin.blade.php
+        if (method_exists($user, 'isAdmin') ? $user->isAdmin() : ($user->role === 'admin')) {
+            return view('profile.admin', compact('user'));
+
+        }
+
+        // Jika user biasa -> kirim ke resources/views/profile/edit.blade.php
+        return view('profile.edit', compact('user'));
     }
+
 
     /**
      * Update the user's profile information.

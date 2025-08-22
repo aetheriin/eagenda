@@ -30,14 +30,14 @@
                     @csrf
 
                     <!-- Nomor Urut -->
-                    <div class="mb-4">
+                    <div class="w-1/4">
                         <label class="block text-gray-700 font-semibold mb-1">Nomor Urut <span class="text-red-500">*</span></label>
                         <input type="text" name="nomor_urut" value="{{ $nomorUrut }}" readonly
                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" />
                     </div>
 
                     <!-- Nomor Naskah -->
-                    <div class="mb-4">
+                    <div class="w-2/4">
                         <label class="block text-gray-700 font-semibold mb-1">Nomor Naskah <span class="text-red-500">*</span></label>
                         <input type="text" name="nomor_naskah" value="{{ old('nomor_naskah') }}" required
                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" />

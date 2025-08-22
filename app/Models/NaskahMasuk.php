@@ -17,7 +17,7 @@ class NaskahMasuk extends Model
         'asal_pengirim',
         'tanggal',
         'file',
-        'keterangan'
+        'keterangan',
     ];
 }
 

@@ -5,35 +5,28 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\MemorandumKeluar;
 use App\Models\BagianFungsi;
+use App\Models\KlasifikasiNaskah; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class MemorandumKeluarController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
     public function index(Request $request)
     {
         $query = MemorandumKeluar::query();
 
-        // Logika pencarian
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where('nomor_naskah', 'like', "%{$search}%")
-                ->orWhere('perihal', 'like', "%{$search}%");
+                  ->orWhere('perihal', 'like', "%{$search}%");
         }
 
-        // Jumlah data per halaman
         $perPage = $request->input('per_page', 10);
-
         $memorandumKeluar = $query->orderBy('id', 'desc')->paginate($perPage);
 
         return view('memorandumkeluar.index', compact('memorandumKeluar'));
     }
-
 
     public function create()
     {
@@ -46,44 +39,50 @@ class MemorandumKeluarController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nomor_naskah' => 'required|string|max:255',
-            'bagian_fungsi' => 'required|string|max:255',
-            'klasifikasi' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'tujuan_penerima' => 'required|string|max:255',
-            'tanggal' => 'required|date',
-            'file' => 'required|mimes:pdf,doc,docx|max:2048',
-            'keterangan' => 'required|string',
-        ], [
-            'required' => ':attribute wajib diisi.',
-            'mimes' => 'File harus berupa PDF atau Word.',
-            'max' => 'Ukuran file maksimal 2MB.',
-        ]);
-
         try {
-            DB::beginTransaction();
-
-            $filePath = $request->file('file')->store('memorandum_keluar', 'public');
-
-            MemorandumKeluar::create([
-                'nomor_naskah' => $request->nomor_naskah,
-                'bagian_fungsi' => $request->bagian_fungsi,
-                'klasifikasi' => $request->klasifikasi,
-                'perihal' => $request->perihal,
-                'tujuan_penerima' => $request->tujuan_penerima,
-                'tanggal' => $request->tanggal,
-                'file' => $filePath,
-                'keterangan' => $request->keterangan,
+            $validated = $request->validate([
+                'nomor_urut'       => 'required',
+                'bagian_fungsi_id' => 'required|exists:bagian_fungsis,id',
+                'klasifikasi'      => 'required|string',
+                'perihal'          => 'required|string',
+                'tujuan_penerima'  => 'required|string',
+                'tanggal'          => 'required|date',
+                'file'             => 'required|mimes:pdf,doc,docx|max:2048',
+                'keterangan'       => 'required|string',
             ]);
 
-            DB::commit();
+            $bagianFungsi = BagianFungsi::findOrFail($validated['bagian_fungsi_id']);
+            $klasifikasi  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
+                ->orWhere('kode_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
+                ->firstOrFail();
+            $nomorUrut = str_pad($validated['nomor_urut'], 2, '0', STR_PAD_LEFT);
+
+            $nomorNaskah = $nomorUrut
+                . '/' . $bagianFungsi->kode_bps
+                . '/' . $klasifikasi->kode_klasifikasi
+                . '/' . now()->year;
+
+            $path = $request->file('file')->store('memorandum', 'public');
+
+            MemorandumKeluar::create([
+                'nomor_naskah'          => $nomorNaskah,
+                'bagian_fungsi_id'      => $bagianFungsi->id,
+                'klasifikasi_naskah_id' => $klasifikasi->id, // ✅ Wajib isi kolom FK ini
+                'perihal'               => $validated['perihal'],
+                'tujuan_penerima'       => $validated['tujuan_penerima'],
+                'tanggal'               => $validated['tanggal'],
+                'file'                  => $path,
+                'keterangan'            => $validated['keterangan'],
+            ]);
+
             return redirect()->route('memorandum-keluar.index')->with('success', 'Memorandum berhasil ditambahkan!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Gagal menambahkan data: ' . $e->getMessage()]);
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
+
 
     public function edit($id)
     {
@@ -93,30 +92,49 @@ class MemorandumKeluarController extends Controller
         return view('memorandumkeluar.edit', compact('memorandumKeluar', 'bagianFungsi'));
     }
 
-
     public function update(Request $request, MemorandumKeluar $memorandumKeluar)
     {
         $request->validate([
-            'nomor_naskah' => 'required|string|max:255',
-            'bagian_fungsi' => 'required|string|max:255',
-            'klasifikasi' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'tujuan_penerima' => 'required|string|max:255',
-            'tanggal' => 'required|date',
-            'file' => 'required|mimes:pdf,doc,docx|max:2048',
-            'keterangan' => 'required|string',
+            'bagian_fungsi_id' => 'required|exists:bagian_fungsis,id',
+            'klasifikasi'      => 'required|string',
+            'perihal'          => 'required|string|max:255',
+            'tujuan_penerima'  => 'required|string|max:255',
+            'tanggal'          => 'required|date',
+            'file'             => 'nullable|mimes:pdf,doc,docx|max:2048',
+            'keterangan'       => 'required|string',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $data = $request->only(['nomor_naskah', 'bagian_fungsi', 'klasifikasi', 'perihal', 'tujuan_penerima', 'tanggal', 'keterangan']);
+            $bagianFungsi = BagianFungsi::findOrFail($request->bagian_fungsi_id);
+            $klasifikasi  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
+                ->orWhere('kode_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
+                ->firstOrFail();
+
+            // Ambil nomor urut lama dari nomor_naskah existing (sebelum '/')
+            $oldNomorUrut = strtok($memorandumKeluar->nomor_naskah, '/');
+
+            $nomorNaskah  = $oldNomorUrut
+                . '/' . $bagianFungsi->kode_bps
+                . '/' . $klasifikasi->kode_klasifikasi
+                . '/' . now()->year;
+
+            $data = [
+                'bagian_fungsi_id'      => $bagianFungsi->id,
+                'klasifikasi_naskah_id' => $klasifikasi->id, // ✅ simpan FK, bukan string
+                'perihal'               => $request->perihal,
+                'tujuan_penerima'       => $request->tujuan_penerima,
+                'tanggal'               => $request->tanggal,
+                'keterangan'            => $request->keterangan,
+                'nomor_naskah'          => $nomorNaskah,
+            ];
 
             if ($request->hasFile('file')) {
                 if ($memorandumKeluar->file && Storage::disk('public')->exists($memorandumKeluar->file)) {
                     Storage::disk('public')->delete($memorandumKeluar->file);
                 }
-                $data['file'] = $request->file('file')->store('naskah_masuk', 'public');
+                $data['file'] = $request->file('file')->store('memorandum', 'public');
             }
 
             $memorandumKeluar->update($data);
@@ -128,6 +146,8 @@ class MemorandumKeluarController extends Controller
             return back()->withErrors(['error' => 'Gagal mengupdate data: ' . $e->getMessage()]);
         }
     }
+
+
 
     public function destroy(MemorandumKeluar $memorandumKeluar)
     {
@@ -143,5 +163,4 @@ class MemorandumKeluarController extends Controller
             return back()->withErrors(['error' => 'Gagal menghapus data: ' . $e->getMessage()]);
         }
     }
-
 }

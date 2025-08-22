@@ -1,3 +1,50 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styling Tom Select */
+.ts-wrapper .ts-control {
+  @apply w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 h-11 text-base;
+  font-family: inherit !important;   
+  color: #111827 !important;        
+  font-size: 1rem !important;        
+  line-height: 1.5rem !important;    
+  background-color: #fff !important; 
+}
+
+.ts-wrapper .ts-control input {
+  @apply text-base;
+  font-family: inherit !important;
+  color: #111827 !important;
+}
+
+.ts-wrapper .ts-control.focus,
+.ts-wrapper .ts-control:focus {
+  @apply border-blue-500 ring-2 ring-blue-500/30;
+}
+
+.ts-wrapper .ts-dropdown,
+.ts-wrapper.single .ts-control,
+.ts-wrapper.multi .ts-control {
+  @apply rounded-lg;
+  font-family: inherit !important;
+  color: #111827 !important;
+}
+
+/* Styling opsi dropdown */
+.ts-wrapper .ts-dropdown .option {
+  font-family: inherit !important;
+  font-size: 1rem !important;     /* text-base */
+  line-height: 1.5rem !important; /* text-base */
+  color: #111827 !important;
+}
+
+/* Placeholder */
+.ts-wrapper .ts-control .ts-placeholder {
+  color: #6b7280 !important; /* text-gray-400 */
+}
+
+/* [x-cloak] untuk Alpine.js */
+[x-cloak] { 
+  display: none !important; 
+}

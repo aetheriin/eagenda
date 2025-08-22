@@ -16,8 +16,9 @@
 
                 <div class="flex items-center gap-4">
                     <!-- Dropdown Filter -->
-                    <select name="per_page" 
-                        class="border border-gray-300 rounded px-3 py-2 text-sm h-10"
+                    <select name="per_page"
+                        class="appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm h-10 min-w-[100px] 
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                         onchange="this.form.submit()">
                         <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
                         <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>

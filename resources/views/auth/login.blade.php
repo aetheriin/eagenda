@@ -6,17 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- <link rel="stylesheet" href="{{ asset('css/app.css') }}"> -->
+
   <style>
     body { background: #f4f6f9; }
     .login-card { max-width: 420px; margin: 60px auto; }
     .navbar-custom {
-      background-color: #007bff;
+      background-color: #122f4eff;
       color: white;
     }
     .navbar-brand img {
       height: 30px;
       margin-right: 10px;
     }
+
+    
   </style>
 </head>
 <body class="hold-transition">

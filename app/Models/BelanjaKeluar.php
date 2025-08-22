@@ -12,13 +12,25 @@ class BelanjaKeluar extends Model
     protected $table = 'belanja_keluars';
 
     protected $fillable = [
-        'nomor_naskah',
-        'bagian_fungsi',
-        'klasifikasi',
+        'nomor_naskah',         
+        'bagian_fungsi_id',     
+        'klasifikasi_naskah_id',
         'perihal',
         'tujuan_penerima',
         'tanggal',
         'file',
         'keterangan',
     ];
+
+    // 🔗 Relasi ke BagianFungsi
+    public function bagianFungsi()
+    {
+        return $this->belongsTo(BagianFungsi::class);
+    }
+
+    // 🔗 Relasi ke KlasifikasiNaskah
+    public function klasifikasiNaskah()
+    {
+        return $this->belongsTo(KlasifikasiNaskah::class);
+    }
 }

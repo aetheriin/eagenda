@@ -12,7 +12,13 @@ class KlasifikasiNaskah extends Model
     protected $table = 'klasifikasi_naskahs';
 
     protected $fillable = [
-        'kode',
-        'nama',
+        'nama_klasifikasi',   // contoh: "PERENCANAAN"
+        'kode_klasifikasi',   // contoh: "SS.000"
     ];
+
+    // 🔗 Relasi ke MemorandumKeluar
+    public function memorandumKeluar()
+    {
+        return $this->hasMany(MemorandumKeluar::class);
+    }
 }

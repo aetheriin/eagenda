@@ -12,53 +12,69 @@
                     @csrf
                     @method('PUT')
 
-                    <h2 class="text-l font-semibold text-gray-800 mb-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-6">
                         Edit Memorandum Keluar
                     </h2>
 
                     <!-- Nomor Naskah -->
                     <div class="mb-4">
                         <label class="block text-gray-700 font-semibold mb-2">Nomor Naskah</label>
-                        <input type="text" name="nomor_naskah" class="w-full border rounded px-3 py-2" value="{{ old('nomor_naskah', $memorandumKeluar->nomor_naskah) }}">
+                        <input type="text" name="nomor_naskah" class="w-full border rounded px-3 py-2 bg-gray-100" 
+                               value="{{ old('nomor_naskah', $memorandumKeluar->nomor_naskah) }}" readonly>
                     </div>
 
-                    <!-- Bagian / Fungsi -->
-                     <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-2">Bagian/Fungsi</label>
-                        <input type="text" name="bagian_fungsi" class="w-full border rounded px-3 py-2" value="{{ old('bagian_fungsi', $memorandumKeluar->bagian_fungsi) }}">
+                    <!-- Bagian Fungsi -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Bagian Fungsi</label>
+                        <select name="bagian_fungsi_id" class="w-full border rounded px-3 py-2">
+                            <option value="">-- Pilih Bagian Fungsi --</option>
+                            @foreach($bagianFungsi as $bagian)
+                                <option value="{{ $bagian->id }}" 
+                                    {{ old('bagian_fungsi_id', $memorandumKeluar->bagian_fungsi_id) == $bagian->id ? 'selected' : '' }}>
+                                    {{ $bagian->nama_bagian }} ({{ $bagian->kode_bps }})
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <!-- Klasifikasi -->
-                     <div class="mb-4">
+                    <div class="mb-4">
                         <label class="block text-gray-700 font-semibold mb-2">Klasifikasi</label>
-                        <input type="text" name="klasifikasi" class="w-full border rounded px-3 py-2" value="{{ old('klasifikasi', $memorandumKeluar->klasifikasi) }}">
+                        <input type="text" name="klasifikasi" class="w-full border rounded px-3 py-2"
+                               value="{{ old('klasifikasi', $memorandumKeluar->klasifikasi) }}">
                     </div>
 
                     <!-- Perihal -->
                     <div class="mb-4">
                         <label class="block text-gray-700 font-semibold mb-2">Perihal</label>
-                        <input type="text" name="perihal" class="w-full border rounded px-3 py-2" value="{{ old('perihal', $memorandumKeluar->perihal) }}">
+                        <input type="text" name="perihal" class="w-full border rounded px-3 py-2"
+                               value="{{ old('perihal', $memorandumKeluar->perihal) }}">
                     </div>
 
-                    <!-- Tujuan/Penerima -->
+                    <!-- Tujuan Penerima -->
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-2">Tujuan/Penerima</label>
-                        <input type="text" name="tujuan_penerima" class="w-full border rounded px-3 py-2" value="{{ old('tujuan_penerima', $memorandumKeluar->tujuan_penerima) }}">
+                        <label class="block text-gray-700 font-semibold mb-2">Tujuan / Penerima</label>
+                        <input type="text" name="tujuan_penerima" class="w-full border rounded px-3 py-2"
+                               value="{{ old('tujuan_penerima', $memorandumKeluar->tujuan_penerima) }}">
                     </div>
 
                     <!-- Tanggal -->
                     <div class="mb-4">
                         <label class="block text-gray-700 font-semibold mb-2">Tanggal</label>
-                        <input type="date" name="tanggal" class="w-full border rounded px-3 py-2" value="{{ old('tanggal', $memorandumKeluar->tanggal) }}">
+                        <input type="date" name="tanggal" class="w-full border rounded px-3 py-2"
+                               value="{{ old('tanggal', $memorandumKeluar->tanggal) }}">
                     </div>
 
-                    <!-- File Upload -->
+                    <!-- File -->
                     <div class="mb-4">
                         <label class="block text-gray-700 font-semibold mb-2">Upload File (Kosongkan jika tidak diganti)</label>
-                        <input type="file" name="file" accept=".pdf,.doc,.docx" required class="w-full border rounded px-3 py-2">
-                        <p class="text-sm text-gray-500 mt-1">File saat ini: 
-                            <a href="{{ asset('storage/' . $memorandumKeluar->file) }}" target="_blank" class="text-blue-600">Lihat File</a>
-                        </p>
+                        <input type="file" name="file" accept=".pdf,.doc,.docx" class="w-full border rounded px-3 py-2">
+                        @if($memorandumKeluar->file)
+                            <p class="text-sm text-gray-500 mt-1">
+                                File saat ini: 
+                                <a href="{{ asset('storage/' . $memorandumKeluar->file) }}" target="_blank" class="text-blue-600">Lihat File</a>
+                            </p>
+                        @endif
                     </div>
 
                     <!-- Keterangan -->
@@ -70,15 +86,14 @@
                     <!-- Tombol -->
                     <div class="flex justify-end space-x-3">
                         <a href="{{ route('memorandum-keluar.index') }}" 
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                           class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
                             Batal
                         </a>
                         <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-3"
-                            style="background-color:#2563eb; color:white;">
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             Update
                         </button>
-
+                    </div>
                 </form>
             </div>
         </div>

@@ -17,7 +17,6 @@ class NaskahMasukController extends Controller
     {
         $query = NaskahMasuk::orderBy('id', 'desc');
 
-        // ✅ Search berdasarkan nomor naskah atau perihal
         if ($request->has('search') && $request->search != '') {
             $query->where(function($q) use ($request) {
                 $q->where('nomor_naskah', 'like', '%' . $request->search . '%')
@@ -25,7 +24,6 @@ class NaskahMasukController extends Controller
             });
         }
 
-        // ✅ Filter jumlah data per halaman (default 10)
         $perPage = $request->get('per_page', 10);
 
         $naskahMasuk = $query->paginate($perPage)->appends([

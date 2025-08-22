@@ -9,28 +9,31 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('memorandum_keluars', function (Blueprint $table) {
+        Schema::create('sop_keluars', function (Blueprint $table) {
             $table->id();
             $table->string('nomor_naskah');
-            $table->string('bagian_fungsi');
-            $table->string('klasifikasi');
-            $table->string('perihal');
-            $table->string('tujuan_penerima');
-            $table->date('tanggal');
+
+            $table->foreignId('sub_tim_id')
+                  ->constrained('sub_tims')
+                  ->cascadeOnUpdate()
+                  ->cascadeOnDelete();
+                  
+            $table->string('nama_sop');
+            $table->string('tanggal_dibuat');
+            $table->string('tanggal_berlaku');
             $table->string('file');
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }
 
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('memorandum_keluars');
+        Schema::dropIfExists('sop_keluars');
     }
 };

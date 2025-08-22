@@ -19,6 +19,8 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
-        "admin-lte": "^4.0.0-rc4"
+        "admin-lte": "^4.0.0-rc4",
+        "select2": "^4.1.0-rc.0",
+        "tom-select": "^2.4.3"
     }
 }
