@@ -34,7 +34,7 @@
 
                     <!-- Tim/Subtim -->
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-1" for="sub_tim_id">Tim/Subtim <span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-semibold mb-1" for="sub_tim_id">Tim/Subtim</label>
                         <select name="sub_tim_id" id="sub_tim_id"
                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                 required>
@@ -79,7 +79,7 @@
 
                     <!-- Keterangan -->
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-1">Keterangan <span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-semibold mb-1">Keterangan</label>
                         <textarea name="keterangan" rows="3" required
                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('keterangan') }}</textarea>
                     </div>
