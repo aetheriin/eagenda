@@ -33,47 +33,50 @@ class BelanjaKeluarController extends Controller
         $last = BelanjaKeluar::latest('id')->first();
         $nomorUrut = $last ? $last->id + 1 : 1;
         $bagianFungsi = BagianFungsi::all();
+        $klasifikasiNaskah = KlasifikasiNaskah::all();
 
-        return view('belanjakeluar.create', compact('nomorUrut','bagianFungsi'));
+        return view('belanjakeluar.create', compact('nomorUrut','bagianFungsi', 'klasifikasiNaskah'));
     }
 
     public function store(Request $request)
     {
         try {
             $validated = $request->validate([
-                'nomor_urut'       => 'required',
-                'bagian_fungsi_id' => 'required|exists:bagian_fungsis,id',
-                'klasifikasi'      => 'required|exists:klasifikasi_naskahs,nama_klasifikasi',
-                'perihal'          => 'required|string',
-                'tujuan_penerima'  => 'required|string',
-                'tanggal'          => 'required|date',
-                'file'             => 'nullable|mimes:pdf,doc,docx|max:2048', // ✅ tidak wajib
-                'keterangan'       => 'nullable|string', // ✅ tidak wajib
+                'nomor_urut'                => 'required',
+                'bagian_fungsi_id'          => 'required|exists:bagian_fungsis,id',
+                'klasifikasi_naskah_id'     => 'required|string',
+                'perihal'                   => 'required|string',
+                'tujuan_penerima'           => 'required|string',
+                'tanggal'                   => 'required|date',
+                'file'                      => 'nullable|mimes:pdf,doc,docx|max:2048', 
+                'keterangan'                => 'nullable|string', 
             ]);
 
             $bagianFungsi = BagianFungsi::findOrFail($validated['bagian_fungsi_id']);
-            $klasifikasi  = KlasifikasiNaskah::where('nama_klasifikasi', $validated['klasifikasi'])->firstOrFail();
+            $klasifikasiNaskah  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $request->klasifikasi_naskah_id . '%')
+                ->orWhere('kode_klasifikasi', 'like', '%' . $request->klasifikasi_naskah_id . '%')
+                ->firstOrFail();
+
             $nomorUrut = str_pad($validated['nomor_urut'], 2, '0', STR_PAD_LEFT);
 
             $nomorNaskah = $nomorUrut
                 . '/' . $bagianFungsi->kode_bps
-                . '/' . $klasifikasi->kode_klasifikasi
+                . '/' . $klasifikasiNaskah->kode_klasifikasi
                 . '/' . now()->year;
 
-            // jika ada file baru → simpan, kalau tidak null
             $path = $request->hasFile('file') 
-                ? $request->file('file')->store('belanja', 'public') 
+                ? $request->file('file')->store('belanja_keluar', 'public') 
                 : null;
 
             BelanjaKeluar::create([
                 'nomor_naskah'          => $nomorNaskah,
                 'bagian_fungsi_id'      => $bagianFungsi->id,
-                'klasifikasi_naskah_id' => $klasifikasi->id,
+                'klasifikasi_naskah_id' => $klasifikasiNaskah->id,
                 'perihal'               => $validated['perihal'],
                 'tujuan_penerima'       => $validated['tujuan_penerima'],
                 'tanggal'               => $validated['tanggal'],
                 'file'                  => $path,
-                'keterangan'            => $validated['keterangan'] ?? null, // kalau kosong → null
+                'keterangan'            => $validated['keterangan'] ?? null,
             ]);
 
             return redirect()->route('belanja-keluar.index')->with('success', 'Belanja Keluar berhasil ditambahkan!');
@@ -90,37 +93,41 @@ class BelanjaKeluarController extends Controller
     {
         $belanjaKeluar = BelanjaKeluar::findOrFail($id);
         $bagianFungsi = BagianFungsi::all();
+        $klasifikasiNaskah = KlasifikasiNaskah::all();
 
-        return view('belanjakeluar.edit', compact('belanjaKeluar', 'bagianFungsi'));
+        return view('belanjakeluar.edit', compact('belanjaKeluar', 'bagianFungsi', 'klasifikasiNaskah'));
     }
 
     public function update(Request $request, BelanjaKeluar $belanjaKeluar)
     {
         $request->validate([
-            'bagian_fungsi_id' => 'required|exists:bagian_fungsis,id',
-            'klasifikasi'      => 'required|exists:klasifikasi_naskahs,nama_klasifikasi',
-            'perihal'          => 'required|string|max:255',
-            'tujuan_penerima'  => 'required|string|max:255',
-            'tanggal'          => 'required|date',
-            'file'             => 'nullable|mimes:pdf,doc,docx|max:2048', 
-            'keterangan'       => 'nullable|string', 
+            'bagian_fungsi_id'          => 'required|exists:bagian_fungsis,id',
+            'klasifikasi_naskah_id'     => 'required|string',
+            'perihal'                   => 'required|string|max:255',
+            'tujuan_penerima'           => 'required|string|max:255',
+            'tanggal'                   => 'required|date',
+            'file'                      => 'nullable|mimes:pdf,doc,docx|max:2048', 
+            'keterangan'                => 'nullable|string', 
         ]);
 
         try {
             DB::beginTransaction();
 
             $bagianFungsi = BagianFungsi::findOrFail($request->bagian_fungsi_id);
-            $klasifikasi  = KlasifikasiNaskah::where('nama_klasifikasi', $request->klasifikasi)->firstOrFail();
+            $klasifikasiNaskah  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $request->klasifikasi_naskah_id . '%')
+                ->orWhere('kode_klasifikasi', 'like', '%' . $request->klasifikasi_naskah_id . '%')
+                ->firstOrFail();
 
             $oldNomorUrut = strtok($belanjaKeluar->nomor_naskah, '/');
+            
             $nomorNaskah  = $oldNomorUrut
                 . '/' . $bagianFungsi->kode_bps
-                . '/' . $klasifikasi->kode_klasifikasi
+                . '/' . $klasifikasiNaskah->kode_klasifikasi
                 . '/' . now()->year;
 
             $data = [
                 'bagian_fungsi_id'      => $bagianFungsi->id,
-                'klasifikasi_naskah_id' => $klasifikasi->id,
+                'klasifikasi_naskah_id' => $klasifikasiNaskah->id,
                 'perihal'               => $request->perihal,
                 'tujuan_penerima'       => $request->tujuan_penerima,
                 'tanggal'               => $request->tanggal,
@@ -132,7 +139,7 @@ class BelanjaKeluarController extends Controller
                 if ($belanjaKeluar->file && Storage::disk('public')->exists($belanjaKeluar->file)) {
                     Storage::disk('public')->delete($belanjaKeluar->file);
                 }
-                $data['file'] = $request->file('file')->store('belanja', 'public');
+                $data['file'] = $request->file('file')->store('belanja_keluar', 'public');
             }
 
             $belanjaKeluar->update($data);

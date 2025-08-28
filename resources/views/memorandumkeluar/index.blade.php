@@ -20,23 +20,25 @@
             </div>
         @endif
 
-            <!-- ✅ Card Kontainer -->
+            <!-- Card Kontainer -->
             <div class="bg-white shadow rounded-lg p-6">
                 
-                <!-- ✅ Header Tabel dan Tombol -->
+                <!-- Header Tabel dan Tombol -->
                 <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-gray-800">Daftar Memorandum Keluar</h3>
 
                 <div class="flex items-center gap-4">
                     <!-- Dropdown Filter -->
-                    <select name="per_page"
-                        class="appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm h-10 min-w-[100px] 
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                        onchange="this.form.submit()">
-                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                        <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
-                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                    </select>
+                    <form method="GET" action="{{ route('memorandum-keluar.index') }}">
+                        <select name="per_page"
+                            class="appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm h-10 min-w-[100px] 
+                                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                            onchange="this.form.submit()">
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        </select>
+                    </form>
 
 
                     <!-- Input Search + Tombol Cari -->
@@ -60,14 +62,14 @@
                     </a>
                 </div>
             </div>
-                <!-- ✅ Tabel -->
+                <!-- Tabel -->
                 <div class="overflow-x-auto">
                     <table class="w-full border border-gray-300 text-sm">
                         <thead class="bg-gray-100 text-gray-700">
                             <tr>
                                 <th class="px-4 py-2 border text-center">No</th>
                                 <th class="px-4 py-2 border">Nomor Naskah</th>
-                                <th class="px-4 py-2 border min-w-[250px]">Perihal</th> <!-- ✅ diperlebar -->
+                                <th class="px-4 py-2 border min-w-[250px]">Perihal</th> 
                                 <th class="px-4 py-2 border">Tujuan/Penerima</th>
                                 <th class="px-4 py-2 border text-center">Tanggal</th>
                                 <th class="px-4 py-2 border text-center">Aksi</th>
@@ -88,7 +90,7 @@
                                     
                                     <td class="px-4 py-2 border text-center">
                                         <div class="flex justify-center items-center gap-3">
-                                            <!-- ✅ Tombol Edit -->
+                                            <!-- Tombol Edit -->
                                             <a href="{{ route('memorandum-keluar.edit', $item->id) }}" 
                                             class="inline-flex items-center text-white px-3 py-2 rounded text-sm font-semibold"
                                             style="background-color: #16a34a !important; transition: background-color 0.3s;"
@@ -101,7 +103,7 @@
                                                 Edit
                                             </a>
 
-                                            <!-- ✅ Tombol Hapus -->
+                                            <!-- Tombol Hapus -->
                                             <form action="{{ route('memorandum-keluar.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -129,7 +131,7 @@
                     </table>
                 </div>
 
-                <!-- ✅ Pagination -->
+                <!-- Pagination -->
                 <div class="mt-4">
                     {{ $memorandumKeluar->links() }}
                 </div>

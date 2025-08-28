@@ -1,12 +1,12 @@
 import './bootstrap';
+import '../css/app.css'; 
+import 'tom-select/dist/css/tom-select.css'; 
 import Alpine from 'alpinejs';
+import TomSelect from "tom-select";
 
 window.Alpine = Alpine;
 Alpine.start();
 
-import '../css/app.css'; // ini app.css milik project kamu
-import 'tom-select/dist/css/tom-select.css'; // ini css bawaannya tom-select
-import TomSelect from "tom-select";
 
 document.addEventListener("DOMContentLoaded", () => {
     [

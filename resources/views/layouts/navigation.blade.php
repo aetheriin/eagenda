@@ -72,6 +72,12 @@
                         {{ __('Naskah Masuk') }}
                     </x-nav-link>
 
+                    <!-- Surat Keputusan -->
+                    <x-nav-link href="#">
+                        {{ __('Surat Keputusan') }}
+                    </x-nav-link>
+
+
                     <!-- Laporan Agenda -->
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open"

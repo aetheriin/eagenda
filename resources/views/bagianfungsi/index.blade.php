@@ -16,15 +16,16 @@
 
                 <div class="flex items-center gap-4">
                     <!-- Dropdown Filter -->
-                    <select name="per_page"
-                        class="appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm h-10 min-w-[100px] 
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                        onchange="this.form.submit()">
-                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                        <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
-                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                    </select>
-
+                     <form method="GET" action="{{ route('bagian-fungsi.index') }}">
+                        <select name="per_page"
+                            class="appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm h-10 min-w-[100px] 
+                                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                            onchange="this.form.submit()">
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        </select>
+                    </form>
                     <!-- Input Search + Tombol Cari -->
                     <form method="GET" action="{{ route('bagian-fungsi.index') }}" class="flex items-center space-x-2">
                         <input type="text" name="search" value="{{ request('search') }}" 

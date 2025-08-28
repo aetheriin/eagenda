@@ -15,9 +15,8 @@ class SuratDinasController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SuratDinas::with(['keamananSurat']);
+        $query = SuratDinas::query();
 
-        // Pencarian
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where('nomor_naskah', 'like', "%{$search}%")
@@ -35,51 +34,54 @@ class SuratDinasController extends Controller
         $last = SuratDinas::latest('id')->first();
         $nomorUrut = $last ? $last->id + 1 : 1;
         $bagianFungsi = BagianFungsi::all();
+        $klasifikasiNaskah = KlasifikasiNaskah::all();
         $keamananSurat = KeamananSurat::all();
 
-        return view('suratdinas.create', compact('nomorUrut', 'bagianFungsi', 'keamananSurat'));
+        return view('suratdinas.create', compact('nomorUrut', 'bagianFungsi', 'keamananSurat', 'klasifikasiNaskah'));
     }
 
     public function store(Request $request)
     {
         try {
             $validated = $request->validate([
-                'nomor_urut'       => 'required',
-                'keamanan_surat_id'=> 'required|exists:keamanan_surats,id',
-                'bagian_fungsi_id' => 'required|exists:bagian_fungsis,id',
-                'klasifikasi'      => 'required|string',
-                'perihal'          => 'required|string',
-                'tujuan_penerima'  => 'required|string',
-                'tanggal'          => 'required|date',
-                'file'             => 'nullable|mimes:pdf,doc,docx|max:2048',
-                'keterangan'       => 'nullable|string',
+                'nomor_urut'                => 'required',
+                'keamanan_surat_id'         => 'required|exists:keamanan_surats,id',
+                'bagian_fungsi_id'          => 'required|exists:bagian_fungsis,id',
+                'klasifikasi_naskah_id'     => 'required|string',
+                'perihal'                   => 'required|string',
+                'tujuan_penerima'           => 'required|string',
+                'tanggal'                   => 'required|date',
+                'file'                      => 'nullable|mimes:pdf,doc,docx|max:2048',
+                'keterangan'                => 'nullable|string',
             ]);
 
             $bagianFungsi = BagianFungsi::findOrFail($validated['bagian_fungsi_id']);
-
-            $klasifikasi  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $validated['klasifikasi'] . '%')
-                ->orWhere('kode_klasifikasi', 'like', '%' . $validated['klasifikasi'] . '%')
+            $keamananSurat = KeamananSurat::findOrFail($validated['keamanan_surat_id']);
+            $klasifikasiNaskah  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $request-> klasifikasi_naskah_id . '%')
+                ->orWhere('kode_klasifikasi', 'like', '%' . $request-> klasifikasi_naskah_id . '%')
                 ->firstOrFail();
 
             $nomorUrut = str_pad($validated['nomor_urut'], 2, '0', STR_PAD_LEFT);
             
             $nomorNaskah = 'B-'.$nomorUrut
                 . '/' . $bagianFungsi->kode_bps
-                . '/' . $klasifikasi->kode_klasifikasi
+                . '/' . $klasifikasiNaskah->kode_klasifikasi
                 . '/' . now()->year;
 
-            $path = $request->file('file')->store('belanja', 'public');
+            $path = $request->hasFile('file')
+                ? $request->file('file')->store('surat_dinas', 'public')
+                : null;
 
             SuratDinas::create([
                 'nomor_naskah'          => $nomorNaskah,
-                'keamanan_surat_id'     => $request->keamanan_surat_id,
+                'keamanan_surat_id'     => $keamananSurat->id,
                 'bagian_fungsi_id'      => $bagianFungsi->id,
-                'klasifikasi_naskah_id' => $klasifikasi->id, 
+                'klasifikasi_naskah_id' => $klasifikasiNaskah->id, 
                 'perihal'               => $validated['perihal'],
                 'tujuan_penerima'       => $validated['tujuan_penerima'],
                 'tanggal'               => $validated['tanggal'],
                 'file'                  => $path,
-                'keterangan'            => $validated['keterangan'],
+                'keterangan'            => $validated['keterangan'] ?? null,
             ]);
 
             return redirect()->route('surat-dinas.index')->with('success', 'Surat Dinas berhasil ditambahkan!');
@@ -95,6 +97,7 @@ class SuratDinasController extends Controller
     {
         $suratDinas = SuratDinas::findOrFail($id);
         $bagianFungsi = BagianFungsi::all();
+        $klasifikasiNaskah = KlasifikasiNaskah::all();
         $keamananSurat = KeamananSurat::all();
 
         return view('suratdinas.edit', compact('suratDinas', 'bagianFungsi', 'keamananSurat'));
@@ -103,39 +106,40 @@ class SuratDinasController extends Controller
     public function update(Request $request, SuratDinas $suratDinas)
     {
         $request->validate([
-            'keamanan_surat_id' => 'required|exists:keamanan_surats,id',
-            'bagian_fungsi_id' => 'required|exists:bagian_fungsis,id',
-            'klasifikasi' => 'required|string',
-            'perihal' => 'required|string|max:255',
-            'tujuan_penerima' => 'required|string|max:255',
-            'tanggal' => 'required|date',
-            'file' => 'nullable|mimes:pdf,doc,docx|max:2048',
-            'keterangan' => 'nullable|string',
+            'keamanan_surat_id'         => 'required|exists:keamanan_surats,id',
+            'bagian_fungsi_id'          => 'required|exists:bagian_fungsis,id',
+            'klasifikasi_naskah_id'     => 'required|string',
+            'perihal'                   => 'required|string|max:255',
+            'tujuan_penerima'           => 'required|string|max:255',
+            'tanggal'                   => 'required|date',
+            'file'                      => 'nullable|mimes:pdf,doc,docx|max:2048',
+            'keterangan'                => 'nullable|string',
         ]);
 
         try {
             DB::beginTransaction();
 
             $bagianFungsi = BagianFungsi::findOrFail($request->bagian_fungsi_id);
-            $klasifikasi  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
-                ->orWhere('kode_klasifikasi', 'like', '%' . $request->klasifikasi . '%')
+            $keamananSurat = KeamananSurat::findOrFail($request->keamanan_surat_id);
+            $klasifikasiNaskah  = KlasifikasiNaskah::where('nama_klasifikasi', 'like', '%' . $request->klasifikasi_naskah_id . '%')
+                ->orWhere('kode_klasifikasi', 'like', '%' . $request->klasifikasi_naskah_id . '%')
                 ->firstOrFail();
 
             $oldNomorUrut = strtok($suratDinas->nomor_naskah, '/');
 
             $nomorNaskah  = $oldNomorUrut
                 . '/' . $bagianFungsi->kode_bps
-                . '/' . $klasifikasi->kode_klasifikasi
+                . '/' . $klasifikasiNaskah->kode_klasifikasi
                 . '/' . now()->year;
 
             $data = [
                 'keamanan_surat_id'     => $keamananSurat->id,
                 'bagian_fungsi_id'      => $bagianFungsi->id,
-                'klasifikasi_naskah_id' => $klasifikasi->id, 
+                'klasifikasi_naskah_id' => $klasifikasiNaskah->id, 
                 'perihal'               => $request->perihal,
                 'tujuan_penerima'       => $request->tujuan_penerima,
                 'tanggal'               => $request->tanggal,
-                'keterangan'            => $request->keterangan,
+                'keterangan'            => $request->keterangan ?? null,
                 'nomor_naskah'          => $nomorNaskah,
             ];
 
@@ -143,7 +147,7 @@ class SuratDinasController extends Controller
                 if ($suratDinas->file && Storage::disk('public')->exists($suratDinas->file)) {
                     Storage::disk('public')->delete($suratDinas->file);
                 }
-                $data['file'] = $request->file('file')->store('surat', 'public');
+                $data['file'] = $request->file('file')->store('surat_dinas', 'public');
             }
 
             $suratDinas->update($data);

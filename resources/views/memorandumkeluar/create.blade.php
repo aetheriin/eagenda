@@ -6,15 +6,15 @@
     </x-slot>
     <div class="py-8">
         <div class="max-w-4xl mx-auto px-6">
-            <!-- ✅ Card Form -->
+            <!-- Card Form -->
             <div class="bg-white shadow rounded-lg p-6">
 
-                <!-- ✅ Judul di Dalam Card -->
+                <!-- Judul di Dalam Card -->
                 <h2 class="text-l font-semibold text-gray-800 mb-6">
                     Tambah Memorandum Keluar
                 </h2>
 
-                <!-- ✅ Pesan Error -->
+                <!-- Pesan Error -->
                 @if($errors->any())
                     <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
                         <ul class="list-disc pl-5">
@@ -40,7 +40,7 @@
                 @endif
 
 
-                <!-- ✅ Form -->
+                <!-- Form -->
                 <form action="{{ route('memorandum-keluar.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
@@ -68,7 +68,7 @@
                         <!-- Klasifikasi -->
                         <div class="w-1/3">
                             <label class="block text-gray-700 font-semibold mb-1">Klasifikasi <span class="text-red-500">*</span></label>
-                            <input type="text" name="klasifikasi" value="{{ old('klasifikasi') }}"
+                            <input type="text" name="klasifikasi_naskah_id" value="{{ old('klasifikasi_naskah_id') }}"
                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required />
                         </div>
                     </div>
@@ -119,7 +119,7 @@
                         </a>
                         <button type="submit" 
                             class="font-bold py-2 px-4 rounded text-white"
-                            style="background-color:#2563eb;"> <!-- Tailwind bg-blue-600 -->
+                            style="background-color:#2563eb;"> 
                             Simpan
                         </button>
                     </div>

@@ -42,6 +42,7 @@
 
                     <div class="flex items-center gap-4">
                         <!-- Dropdown Per Page -->
+                         
                         <form method="GET" class="flex items-center gap-2">
                             <select name="per_page"
                                 class="appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm h-10 min-w-[100px] 

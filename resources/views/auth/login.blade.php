@@ -12,7 +12,7 @@
     body { background: #f4f6f9; }
     .login-card { max-width: 420px; margin: 60px auto; }
     .navbar-custom {
-      background-color: #122f4eff;
+      background-color: #1F2937;
       color: white;
     }
     .navbar-brand img {

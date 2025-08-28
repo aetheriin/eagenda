@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\SopKeluar;
-use App\Models\Subtim;
+use App\Models\SubTim;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -20,15 +20,13 @@ class SopKeluarController extends Controller
         $query = SopKeluar::query();
 
         // Logika pencarian
-        // if ($request->has('search')) {
-        //     $search = $request->input('search');
-        //     $query->where('nomor_naskah', 'like', "%{$search}%")
-        //         ->orWhere('perihal', 'like', "%{$search}%");
-        // }
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('nomor_naskah', 'like', "%{$search}%")
+                ->orWhere('nama_sop', 'like', "%{$search}%");
+        }
 
-        // Jumlah data per halaman
         $perPage = $request->input('per_page', 10);
-
         $sopKeluar = $query->orderBy('id', 'desc')->paginate($perPage);
 
         return view('sopkeluar.index', compact('sopKeluar'));
@@ -64,17 +62,17 @@ class SopKeluarController extends Controller
                 . '/' . $subTim->kode_subtim
                 . '/' . now()->year;
 
-            $filePath = $request->hasFile('file')
+            $path = $request->hasFile('file')
                 ? $request->file('file')->store('sop_keluar', 'public')
                 : null;
 
             SopKeluar::create([
                 'nomor_naskah'     => $nomorNaskah,
-                'sub_tim_id'       => $validated['sub_tim_id'],
+                'sub_tim_id'       => $subTim->id,
                 'nama_sop'         => $validated['nama_sop'],
                 'tanggal_dibuat'   => $validated['tanggal_dibuat'],
                 'tanggal_berlaku'  => $validated['tanggal_berlaku'],
-                'file'             => $filePath,
+                'file'             => $path,
                 'keterangan'       => $validated['keterangan'] ?? null,
             ]);
 
@@ -110,8 +108,20 @@ class SopKeluarController extends Controller
         try {
             DB::beginTransaction();
 
-            $data = $request->only(['sub_tim_id', 'nama_sop', 'tanggal_dibuat', 'tanggal_berlaku', 'keterangan']);
+            $subTim = SubTim::findOrFail($request->sub_tim_id);
+            $oldNomorUrut = strtok($sopKeluar->nomor_naskah, '/');
 
+            $nomorNaskah  = $oldNomorUrut
+                . '/' . $subTim->kode_subtim
+                . '/' . now()->year;    
+            $data = [
+                'nomor_naskah'     => $nomorNaskah,
+                'sub_tim_id'       => $subTim->id,
+                'nama_sop'         => $request->nama_sop,
+                'tanggal_dibuat'   => $request->tanggal_dibuat,
+                'tanggal_berlaku'  => $request->tanggal_berlaku,
+                'keterangan'       => $request->keterangan ?? null,
+            ];
             if ($request->hasFile('file')) {
                 if ($sopKeluar->file && Storage::disk('public')->exists($sopKeluar->file)) {
                     Storage::disk('public')->delete($sopKeluar->file);
